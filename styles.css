@@ -454,10 +454,24 @@ label {
     gap: 10px;
 }
 
+/* Calculator Grid - Flexible layout for all laptop screens */
 .grid-calculator {
     display: grid;
-    grid-template-columns: 420px 1fr;
+    grid-template-columns: minmax(380px, 420px) 1fr;
     gap: 24px;
+}
+
+/* Make the results table card scrollable and responsive */
+.results-card {
+    min-width: 0; /* Prevents flex/grid blowouts */
+    overflow-x: auto;
+}
+
+/* Responsive breakpoint for laptops/tablets */
+@media (max-width: 1280px) {
+    .grid-calculator {
+        grid-template-columns: 1fr; /* Stacks input on top and results table underneath */
+    }
 }
 
 .empty-state {
