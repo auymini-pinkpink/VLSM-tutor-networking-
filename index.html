@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VLSM Tutor — Learn Networking the Easy Way</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- FontAwesome for professional UI icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="brand">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-network-wired"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>VLSM Tutor</h1>
+                    <span class="badge">v1.0 MVP</span>
+                </div>
+            </div>
+            
+            <nav class="nav-menu">
+                <button class="nav-item active" data-target="calculator-view">
+                    <i class="fa-solid fa-calculator"></i>
+                    <span>VLSM Calculator</span>
+                </button>
+                <button class="nav-item" data-target="sample-view">
+                    <i class="fa-solid fa-lightbulb"></i>
+                    <span>Sample Practice</span>
+                </button>
+                <button class="nav-item" data-target="lessons-view">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>Learning Center</span>
+                </button>
+                <button class="nav-item" data-target="quiz-view">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    <span>Interactive Quiz</span>
+                </button>
+                <button class="nav-item" data-target="monetization-view">
+                    <i class="fa-solid fa-rocket"></i>
+                    <span>Pro & Roadmap</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="pro-card-mini">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <div>
+                        <strong>Networking Pro</strong>
+                        <p>Master subnetting & CCNA skills</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="topbar">
+                <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle navigation">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div class="header-title">
+                    <span id="currentViewTitle">VLSM Calculator</span>
+                    <p class="header-subtitle">Professional IPv4 Subnetting & Allocation Engine</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-outline" id="loadSampleBtn" title="Load Sample 192.168.1.0/24">
+                        <i class="fa-solid fa-bolt"></i> Load Sample
+                    </button>
+                </div>
+            </header>
+
+            <div class="content-body">
+                <!-- VIEW 1: CALCULATOR -->
+                <section id="calculator-view" class="view-section active">
+                    <div class="grid-calculator">
+                        <!-- Input Card -->
+                        <div class="card input-card">
+                            <div class="card-header">
+                                <h2><i class="fa-solid fa-sliders"></i> Network Parameters</h2>
+                                <p>Enter your base network and subnet host requirements below.</p>
+                            </div>
+                            
+                            <form id="vlsmForm" class="form-container" novalidate>
+                                <div class="form-group">
+                                    <label for="baseNetwork">Starting Network (CIDR)</label>
+                                    <div class="input-with-icon">
+                                        <i class="fa-solid fa-globe"></i>
+                                        <input type="text" id="baseNetwork" value="192.168.1.0/24" placeholder="e.g. 192.168.1.0/24" required>
+                                    </div>
+                                    <span class="form-hint">Supports Class A, B, C networks with prefix /8 to /30.</span>
+                                </div>
+
+                                <div class="subnets-header">
+                                    <label>Subnet Host Requirements</label>
+                                    <button type="button" class="btn-text" id="addSubnetRowBtn">
+                                        <i class="fa-solid fa-plus"></i> Add Subnet
+                                    </button>
+                                </div>
+
+                                <div id="subnetsContainer" class="subnets-container">
+                                    <!-- Dynamic rows injected via app.js -->
+                                </div>
+
+                                <div class="error-banner" id="calcErrorBanner" style="display: none;">
+                                    <i class="fa-solid fa-triangle-exclamation"></i>
+                                    <span id="calcErrorMessage">Validation error message goes here.</span>
+                                </div>
+
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary" id="calculateBtn">
+                                        <i class="fa-solid fa-gears"></i> Calculate VLSM
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" id="resetBtn">
+                                        <i class="fa-solid fa-rotate-right"></i> Reset
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Results Card -->
+                        <div class="card results-card" id="resultsCard">
+                            <div class="card-header flex-header">
+                                <div>
+                                    <h2><i class="fa-solid fa-table-cells"></i> Subnet Allocation Table</h2>
+                                    <p id="resultsSummaryText">Calculated optimal subnet blocks sorted by size.</p>
+                                </div>
+                                <div class="results-actions" id="resultsActions" style="display: none;">
+                                    <button class="btn btn-outline btn-sm" id="copyResultsBtn">
+                                        <i class="fa-solid fa-copy"></i> Copy Results
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="empty-state" id="emptyResultsState">
+                                <div class="empty-icon">
+                                    <i class="fa-solid fa-network-wired"></i>
+                                </div>
+                                <h3>No Calculations Yet</h3>
+                                <p>Enter a base network and host requirements, then click <strong>Calculate VLSM</strong> to generate your optimized subnet allocation plan.</p>
+                                <button class="btn btn-primary btn-sm" id="quickSampleBtn">
+                                    Load Sample (192.168.1.0/24)
+                                </button>
+                            </div>
+
+                            <div class="results-content" id="resultsContent" style="display: none;">
+                                <div class="metrics-grid">
+                                    <div class="metric-box">
+                                        <span class="metric-label">Base Network</span>
+                                        <span class="metric-value" id="mBaseNet">-</span>
+                                    </div>
+                                    <div class="metric-box">
+                                        <span class="metric-label">Total Subnets</span>
+                                        <span class="metric-value" id="mSubnetCount">-</span>
+                                    </div>
+                                    <div class="metric-box">
+                                        <span class="metric-label">Efficiency</span>
+                                        <span class="metric-value" id="mEfficiency">-</span>
+                                    </div>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <table class="data-table" id="subnetTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Name / ID</th>
+                                                <th>Required</th>
+                                                <th>Allocated / CIDR</th>
+                                                <th>Subnet Mask</th>
+                                                <th>Total IPs</th>
+                                                <th>Usable Range</th>
+                                                <th>Broadcast</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="subnetTableBody">
+                                            <!-- Rows populated by app.js -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 2: SAMPLE PRACTICE -->
+                <section id="sample-view" class="view-section">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2><i class="fa-solid fa-lightbulb"></i> Guided VLSM Practice Scenario</h2>
+                            <p>Understand how Variable Length Subnet Masking prevents IP address waste in enterprise networks.</p>
+                        </div>
+                        <div class="sample-content">
+                            <div class="callout-box">
+                                <h3><i class="fa-solid fa-circle-info"></i> Scenario Overview</h3>
+                                <p>Suppose an organization receives the network assignment <strong>192.168.1.0/24</strong> (Class C, 256 total IP addresses). The network administrator needs to carve out subnets for four distinct departments with varying host counts:</p>
+                                <ul>
+                                    <li><strong>Department A:</strong> 50 hosts</li>
+                                    <li><strong>Department B:</strong> 25 hosts</li>
+                                    <li><strong>Department C:</strong> 10 hosts</li>
+                                    <li><strong>Department D:</strong> 5 hosts</li>
+                                </ul>
+                            </div>
+
+                            <h3 class="section-subheading">Step-by-Step Allocation Logic</h3>
+                            <div class="steps-timeline">
+                                <div class="step-item">
+                                    <div class="step-badge">1</div>
+                                    <div class="step-body">
+                                        <h4>Sort Requirements Largest to Smallest</h4>
+                                        <p>Always allocate the largest subnet first so that boundary alignment works correctly. Order: Dept A (50), Dept B (25), Dept C (10), Dept D (5).</p>
+                                    </div>
+                                </div>
+                                <div class="step-item">
+                                    <div class="step-badge">2</div>
+                                    <div class="step-body">
+                                        <h4>Allocate Department A (50 Hosts)</h4>
+                                        <p>Needs &ge; 50 usable addresses. The smallest power of 2 accommodating 50 + 2 (network & broadcast) is 64 (2<sup>6</sup>). Thus, prefix is 32 - 6 = /26.<br>
+                                        <strong>Network:</strong> 192.168.1.0/26 | <strong>Range:</strong> 192.168.1.1 — 192.168.1.62 | <strong>Broadcast:</strong> 192.168.1.63</p>
+                                    </div>
+                                </div>
+                                <div class="step-item">
+                                    <div class="step-badge">3</div>
+                                    <div class="step-body">
+                                        <h4>Allocate Department B (25 Hosts)</h4>
+                                        <p>Starts immediately after Dept A ends. Next block starts at 192.168.1.64. Needs &ge; 25 usable IPs. 32 IPs (2<sup>5</sup>) gives 30 usable hosts (/27).<br>
+                                        <strong>Network:</strong> 192.168.1.64/27 | <strong>Range:</strong> 192.168.1.65 — 192.168.1.94 | <strong>Broadcast:</strong> 192.168.1.95</p>
+                                    </div>
+                                </div>
+                                <div class="step-item">
+                                    <div class="step-badge">4</div>
+                                    <div class="step-body">
+                                        <h4>Allocate Department C (10 Hosts) & Department D (5 Hosts)</h4>
+                                        <p><strong>Dept C:</strong> Starts at 192.168.1.96. Needs 10 hosts &rarr; 16 IPs (2<sup>4</sup>) &rarr; /28. Range: 192.168.1.97 — 192.168.1.110.<br>
+                                        <strong>Dept D:</strong> Starts at 192.168.1.112. Needs 5 hosts &rarr; 8 IPs (2<sup>3</sup>) &rarr; /29. Range: 192.168.1.113 — 192.168.1.118.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="action-footer">
+                                <button class="btn btn-primary" id="loadThisSampleBtn">
+                                    <i class="fa-solid fa-arrow-right"></i> Load This Scenario in Calculator
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 3: LEARNING CENTER -->
+                <section id="lessons-view" class="view-section">
+                    <div class="lessons-grid">
+                        <div class="card lesson-nav-card">
+                            <h3><i class="fa-solid fa-bookmark"></i> Table of Contents</h3>
+                            <ul class="lesson-list" id="lessonList">
+                                <li class="lesson-link active" data-lesson="0">1. IPv4 Address Fundamentals</li>
+                                <li class="lesson-link" data-lesson="1">2. Subnet Masks & Binary</li>
+                                <li class="lesson-link" data-lesson="2">3. CIDR Notation Explained</li>
+                                <li class="lesson-link" data-lesson="3">4. Network vs. Host Addresses</li>
+                                <li class="lesson-link" data-lesson="4">5. Broadcast Addresses</li>
+                                <li class="lesson-link" data-lesson="5">6. Calculating Usable Hosts</li>
+                                <li class="lesson-link" data-lesson="6">7. Choosing Subnet Sizes</li>
+                                <li class="lesson-link" data-lesson="7">8. Introduction to VLSM</li>
+                                <li class="lesson-link" data-lesson="8">9. Allocation Best Practices</li>
+                            </ul>
+                        </div>
+                        <div class="card lesson-content-card">
+                            <div id="lessonContentContainer">
+                                <!-- Populated dynamically by app.js -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 4: INTERACTIVE QUIZ -->
+                <section id="quiz-view" class="view-section">
+                    <div class="card quiz-card">
+                        <div class="card-header flex-header">
+                            <div>
+                                <h2><i class="fa-solid fa-graduation-cap"></i> Networking & VLSM Mastery Quiz</h2>
+                                <p>Test your knowledge with 10 questions covering subnetting, CIDR, and VLSM.</p>
+                            </div>
+                            <div class="quiz-progress-badge" id="quizProgressBadge">Question 1 of 10</div>
+                        </div>
+
+                        <div id="quizContainer">
+                            <div id="quizQuestionBox">
+                                <h3 id="quizQuestionTitle" class="quiz-q-title">Question loading...</h3>
+                                <div class="quiz-options" id="quizOptionsList"></div>
+                                <div class="quiz-explanation-box" id="quizExplanationBox" style="display: none;">
+                                    <strong>Explanation:</strong> <span id="quizExplanationText"></span>
+                                </div>
+                                <div class="quiz-footer-actions">
+                                    <button class="btn btn-primary" id="quizNextBtn" disabled>Next Question</button>
+                                </div>
+                            </div>
+
+                            <div id="quizResultBox" style="display: none;" class="quiz-results-container">
+                                <div class="score-circle">
+                                    <span id="finalScoreNumber">0/10</span>
+                                </div>
+                                <h3>Quiz Completed!</h3>
+                                <p id="finalScoreMessage">Great job completing the VLSM Mastery Quiz.</p>
+                                <div class="quiz-result-actions">
+                                    <button class="btn btn-primary" id="retryQuizBtn">
+                                        <i class="fa-solid fa-rotate-right"></i> Try Again
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 5: MONETIZATION & ROADMAP -->
+                <section id="monetization-view" class="view-section">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2><i class="fa-solid fa-rocket"></i> Pro Roadmap & Future Expansion</h2>
+                            <p>Discover future planned features for advanced networking students, instructors, and IT professionals.</p>
+                        </div>
+                        <div class="roadmap-grid">
+                            <div class="roadmap-item">
+                                <div class="roadmap-icon"><i class="fa-solid fa-file-pdf"></i></div>
+                                <h3>Downloadable PDF Worksheets</h3>
+                                <p>Generate custom subnetting problem sets with full answer keys for classroom practice and study groups.</p>
+                            </div>
+                            <div class="roadmap-item">
+                                <div class="roadmap-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                                <h3>CIDR & Firewall Rule Designer</h3>
+                                <p>Advanced CIDR aggregation and ACL (Access Control List) wildcard mask calculations for network security engineers.</p>
+                            </div>
+                            <div class="roadmap-item">
+                                <div class="roadmap-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+                                <h3>CCNA & CompTIA Exam Simulators</h3>
+                                <p>Timed lab exam simulators mirroring official Cisco CCNA certification test environments.</p>
+                            </div>
+                            <div class="roadmap-item">
+                                <div class="roadmap-icon"><i class="fa-solid fa-cloud"></i></div>
+                                <h3>Cloud VPC Subnet Planner</h3>
+                                <p>Plan multi-region AWS VPC and Azure Virtual Network CIDR blocks with subnet peering validation.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="callout-box mt-4">
+                            <h3><i class="fa-solid fa-circle-info"></i> Educational & Open Source Commitment</h3>
+                            <p>VLSM Tutor is built with vanilla web technologies to remain lightning-fast, accessible, and free for students worldwide. Future professional tiers will support advanced enterprise topologies while keeping core educational tools free.</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toastNotification">
+        <i class="fa-solid fa-circle-check"></i>
+        <span id="toastMessage">Action completed successfully</span>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
